@@ -5,7 +5,11 @@ import PackageDescription
 
 let package = Package(
     name: "UIExtend",
-    platforms: [.iOS("8.0"), .watchOS("2.0"), .tvOS("9.0")],
+    platforms: [
+        .iOS("8.0"),
+        .watchOS("2.0"),
+        .tvOS("9.0"),
+    ],
     products: [
         // Products define the executables and libraries produced by a package, and make them visible to other packages.
         .library(
@@ -17,6 +21,9 @@ let package = Package(
         .library(
             name: "ImagePreview",
             targets: ["ImagePreview"]),
+        .library(
+            name: "OperatorLayout",
+            targets: ["OperatorLayout"]),
         .library(
             name: "Toast",
             targets: ["Toast"]),
@@ -40,30 +47,54 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "UIExtend",
-            dependencies: ["ImageCache","Toast","SceneKit"]),
+            dependencies: ["ImageCache","Toast","SceneKit"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .testTarget(
             name: "UIExtendTests",
             dependencies: ["UIExtend"]),
         .target(
-            name: "AutoLayout",
-            dependencies: []),
+            name: "OperatorLayout",
+            dependencies: [],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .target(
             name: "Toast",
-            dependencies: ["AutoLayout","CoreAnimations"]),
+            dependencies: ["OperatorLayout","CoreAnimations"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .target(
             name: "ImageCache",
-            dependencies: ["JSON","HTTP","Extend"]),
+            dependencies: ["JSON","HTTP","Extend"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .target(
             name: "ImagePreview",
-            dependencies: ["ImageCache"]),
+            dependencies: ["ImageCache"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .target(
             name: "SceneKit",
-            dependencies: ["UIKit"]),
+            dependencies: [],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .target(
             name: "BorderCorner",
-            dependencies: ["UIKit"]),
+            dependencies: [],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
         .target(
             name: "DynamicLayout",
-            dependencies: ["AutoLayout"]),
+            dependencies: ["OperatorLayout"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
     ]
 )
