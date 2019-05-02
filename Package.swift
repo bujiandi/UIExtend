@@ -28,8 +28,8 @@ let package = Package(
             name: "Toast",
             targets: ["Toast"]),
         .library(
-            name: "SceneKit",
-            targets: ["SceneKit"]),
+            name: "SceneManager",
+            targets: ["SceneManager"]),
         .library(
             name: "BorderCorner",
             targets: ["BorderCorner"]),
@@ -47,7 +47,8 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "UIExtend",
-            dependencies: ["ImageCache","Toast","SceneKit"],
+//            dependencies: ["ImageCache","Toast"],
+            dependencies: ["ImageCache","Toast","SceneManager"],
             linkerSettings: [
                 .linkedFramework("UIKit"),
             ]),
@@ -79,7 +80,7 @@ let package = Package(
                 .linkedFramework("UIKit"),
             ]),
         .target(
-            name: "SceneKit",
+            name: "SceneManager",
             dependencies: [],
             linkerSettings: [
                 .linkedFramework("UIKit"),

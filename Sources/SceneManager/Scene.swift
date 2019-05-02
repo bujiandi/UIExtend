@@ -1,6 +1,6 @@
 //
 //  Scene.swift
-//  SceneKit
+//  SceneManager
 //
 //  Created by bujiandi on 2019/4/24.
 //

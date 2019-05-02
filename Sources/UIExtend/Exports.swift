@@ -6,6 +6,6 @@
 //
 
 @_exported import ImageCache
-@_exported import SceneKit
+@_exported import SceneManager
 @_exported import Toast
 
