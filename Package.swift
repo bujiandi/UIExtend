@@ -34,6 +34,9 @@ let package = Package(
             name: "BorderCorner",
             targets: ["BorderCorner"]),
         .library(
+            name: "GradientColor",
+            targets: ["GradientColor"]),
+        .library(
             name: "DynamicLayout",
             targets: ["DynamicLayout"]),
     ],
@@ -87,6 +90,12 @@ let package = Package(
             ]),
         .target(
             name: "BorderCorner",
+            dependencies: [],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
+        .target(
+            name: "GradientColor",
             dependencies: [],
             linkerSettings: [
                 .linkedFramework("UIKit"),
