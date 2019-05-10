@@ -22,34 +22,44 @@ public protocol Scene: class {
 
 extension Scene {
     
-    // 推入下一个页面
+    /// 推入下一个页面
     public func push<S:Scene>(scene:S, with params: @autoclosure () -> S.Params, animated flag: Bool = true) {
         _push(scene, animated: flag)
         _loadSceneIfNeed(scene)
-        scene.onBuild(with: params())
+        let paramValues = params()
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild(with: paramValues)
+        }
     }
     
     
-    // 推入下一个页面
+    /// 推入下一个页面
     public func push<S:Scene>(scene:S, animated flag: Bool = true) where S.Params == Null {
         _push(scene, animated: flag)
         _loadSceneIfNeed(scene)
-        scene.onBuild{}
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild{}
+        }
     }
     
-    // 呈现下一个页面
+    /// 呈现下一个页面
     public func present<S:Scene>(scene:S, with params: @autoclosure () -> S.Params, animated flag: Bool = true) {
         _present(scene, animated: flag)
         _loadSceneIfNeed(scene)
-        scene.onBuild(with: params())
+        let paramValues = params()
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild(with: paramValues)
+        }
     }
     
     
-    // 呈现下一个页面
+    /// 呈现下一个页面
     public func present<S:Scene>(scene:S, animated flag: Bool = true) where S.Params == Null {
         _present(scene, animated: flag)
         _loadSceneIfNeed(scene)
-        scene.onBuild{}
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild{}
+        }
     }
     
     private func _loadSceneIfNeed<S:Scene>(_ scene:S) {
@@ -113,7 +123,7 @@ extension Scene {
         
     }
     
-    // 返回到根
+    /// 返回到根
     public func backToRoot() {
         if SceneManager.shared.sceneStack.count == 1 { return }
         let sceneManager = SceneManager.shared
@@ -127,7 +137,9 @@ extension Scene {
         // 如果没找到所需退回的页面,则尝试退到根页面
         if let rootScene = sceneManager.sceneStack.first?.scene as? SceneIsRoot {
             lastSceneAction.popWithAnimated(true)
-            rootScene.onBuild()
+            DispatchQueue.main.async { [weak rootScene] in
+                rootScene?.onBuild()
+            }
         } else if sceneManager.sceneStack.first?.scene is Scene {
             lastSceneAction.popWithAnimated(true)
         }
@@ -137,8 +149,8 @@ extension Scene {
         back(to: sceneType, with: {})
     }
     
-    // 返回到指定页面
-    public func back<S:Scene>(to sceneType:S.Type, with params:S.Params) {
+    /// 返回到指定页面
+    public func back<S:Scene>(to sceneType:S.Type, with params:@autoclosure () -> S.Params) {
         if SceneManager.shared.sceneStack.count == 1 { return }
         let this = self as AnyObject
         let sceneManager = SceneManager.shared
@@ -153,7 +165,10 @@ extension Scene {
             if let scene = sceneManager.sceneStack[i].scene as? S {
                 lastSceneAction.popWithAnimated(true)
                 _loadSceneIfNeed(scene)
-                scene.onBuild(with: params)
+                let paramValues = params()
+                DispatchQueue.main.async { [weak scene] in
+                    scene?.onBuild(with: paramValues)
+                }
                 CATransaction.commit()
                 return
             } else if i > 0 {
@@ -165,7 +180,9 @@ extension Scene {
         // 如果没找到所需退回的页面,则尝试退到根页面
         if let rootScene = sceneManager.sceneStack.first?.scene as? SceneIsRoot {
             lastSceneAction.popWithAnimated(true)
-            rootScene.onBuild()
+            DispatchQueue.main.async { [weak rootScene] in
+                rootScene?.onBuild()
+            }
         } else if sceneManager.sceneStack.first?.scene is S {
             lastSceneAction.popWithAnimated(true)
         }

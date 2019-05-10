@@ -37,6 +37,9 @@ let package = Package(
             name: "GradientColor",
             targets: ["GradientColor"]),
         .library(
+            name: "EndEdit",
+            targets: ["EndEdit"]),
+        .library(
             name: "DynamicLayout",
             targets: ["DynamicLayout"]),
     ],
@@ -93,9 +96,17 @@ let package = Package(
             dependencies: [],
             linkerSettings: [
                 .linkedFramework("UIKit"),
+                .linkedFramework("QuartzCore"),
             ]),
         .target(
             name: "GradientColor",
+            dependencies: [],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+                .linkedFramework("QuartzCore"),
+            ]),
+        .target(
+            name: "EndEdit",
             dependencies: [],
             linkerSettings: [
                 .linkedFramework("UIKit"),

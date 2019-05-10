@@ -52,7 +52,11 @@ open class SceneManager {
         if !(scene.vc?.isViewLoaded ?? true) {
             scene.vc.view.setNeedsLayout()
         }
-        scene.onBuild(with: params())
+        let paramValues = params()
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild(with: paramValues)
+        }
+        
     }
     
     var sceneStack:[SceneCloseAction] = [SceneCloseAction]()
