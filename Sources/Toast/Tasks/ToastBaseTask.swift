@@ -178,14 +178,14 @@ open class ToastBaseTask : Equatable {
     
     /// 展示 Toast
     @discardableResult
-    open func show() -> Self {
+    open func show(animated flag:Bool = true) -> Self {
         if content.superview == nil { _layoutContentOn(container, self) }
         return self
     }
     
     /// 隐藏 Toast
     @discardableResult
-    open func hide() -> Self {
+    open func hide(animated flag:Bool = true) -> Self {
         return self
     }
     

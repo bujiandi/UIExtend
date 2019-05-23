@@ -12,18 +12,18 @@ open class ToastActive: ToastOverlay {
 
     
     @discardableResult
-    open override func show() -> Self {
-        super.show()
-        Toast.activeManager.append(self)
-        Toast.activeManager.animateCallThis()//.resetTimer(minTime: 0.05)
+    open override func show(animated flag:Bool = true) -> Self {
+        super.show(animated: flag)
+        Toast.activeManager.append(self, animated: flag)
+        defer { Toast.activeManager.animateCallThis() } //.resetTimer(minTime: 0.05)
         return self
     }
     
     @discardableResult
-    open override func hide() -> Self {
-        super.hide()
+    open override func hide(animated flag:Bool = true) -> Self {
+        super.hide(animated: flag)
         if  Toast.activeManager.remove(self) {
-            Toast.removeManager.append(self)
+            Toast.removeManager.append(self, animated: flag)
             Toast.removeManager.animateCallThis()
             Toast.activeManager.resetTimer(minTime: Toast.setting.animDuration + 0.08)
         }

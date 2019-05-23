@@ -25,18 +25,18 @@ open class ToastCustom: ToastOverlay {
     }
     
     @discardableResult
-    open override func show() -> Self {
-        super.show()
-        Toast.customManager.append(self)
-        Toast.customManager.animateCallThis()//.resetTimer(minTime: 0.05)
+    open override func show(animated flag:Bool = true) -> Self {
+        super.show(animated: flag)
+        Toast.customManager.append(self, animated: flag)
+        defer { Toast.customManager.animateCallThis() } //.resetTimer(minTime: 0.05)
         return self
     }
 
     @discardableResult
-    open override func hide() -> Self {
-        super.hide()
+    open override func hide(animated flag:Bool = true) -> Self {
+        super.hide(animated: flag)
         if  Toast.customManager.remove(self) {
-            Toast.removeManager.append(self)
+            Toast.removeManager.append(self, animated: flag)
             Toast.removeManager.resetTimer(minTime: 0.05)
             Toast.customManager.resetTimer(minTime: Toast.setting.animDuration + 0.08)
         }

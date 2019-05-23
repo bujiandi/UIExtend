@@ -17,10 +17,10 @@ extension Toast {
         // 移除队列不要使用 其 window 属性 因为队列中的ToastBaseTask 属于其他window
         if !(manager._window?.isHidden ?? true) { manager.window.isHidden = true }
 
-        let queue:[ToastBaseTask] = manager.queue.reversed()
+        let queue:[(ToastBaseTask, animated:Bool)] = manager.queue.reversed()
         manager.queue.removeAll(keepingCapacity: false)
         
-        for task in queue {
+        for (task, animated) in queue {
             task._hideAnimations(task)
             DispatchQueue.main.asyncAfter(deadline: .now() + task.hideDuration) {
                 task.container.superview?.removeConstraints(by: task.container)
@@ -68,10 +68,10 @@ extension Toast {
         // 最小动画时间差 (不能低于单次动画时长)
         var minCallTime:TimeInterval = TimeInterval.greatestFiniteMagnitude
         
-        var removeQueue = [ToastBaseTask]()
+        var removeQueue = [(ToastBaseTask, animated:Bool)]()
         var offsetY:CGFloat = 0
         for i in (0..<manager.queue.count).reversed() {
-            let task = manager.queue[i]
+            let (task, animated) = manager.queue[i]
             
             // 不在显示中的 task 补动画时间
             if i >= setting.maxCount { task.dismissTime += timeOffset }
@@ -80,7 +80,7 @@ extension Toast {
             let time = task.dismissTime - currentTime
             if time <= 0, i < setting.maxCount {
                 manager.queue.remove(at: i)
-                removeQueue.append(task)
+                removeQueue.append((task, animated))
                 continue
             } else if time < minCallTime {
                 // 更新下次执行最小时间间隔
@@ -124,7 +124,7 @@ extension Toast {
         
         UIView.animate(withDuration: setting.animDuration, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 20, options: [.curveEaseInOut], animations: {
             
-            for task in manager.queue {
+            for (task, animated) in manager.queue {
                 if task.centerY == nil {
                     task.container.frame = task.frame
                 }
@@ -206,7 +206,7 @@ extension Toast {
         // 如果队列中有新的通知消息
         if notice == nil, manager.queue.count > 0 {
 
-            let task = manager.queue.removeFirst()
+            let (task, animated) = manager.queue.removeFirst()
             
             if task.holdSecond > 0 {
                 task.dismissTime = currentTime + task.holdSecond
@@ -262,9 +262,11 @@ extension Toast {
     // MARK: - overlay
     public static func overlayAnimate(manager:ToastManager<ToastOverlay>) {
         
-        manager.hideWindowIfNeed()
+        DispatchQueue.main.async { [weak manager] in
+            manager?.hideWindowIfNeed()
+        }
         
-        guard let task = manager.queue.first else { return }
+        guard let (task, animated) = manager.queue.first else { return }
         
         if manager._window == nil {
             manager.window.isUserInteractionEnabled = true
@@ -307,8 +309,12 @@ extension Toast {
 
             task._layoutContainerOn(root, task)
             root.layoutIfNeeded()
+//            task.childController?.viewWillAppear(animated)
             // 执行显示动画
-            task._showAnimations(task)
+            if animated {
+                task._showAnimations(task)
+            }
+            
         }
         
 //        UIView.animate(withDuration: setting.animDuration, delay: 0, usingSpringWithDamping: manager.animDamping, initialSpringVelocity: 20, options: [.curveEaseInOut], animations: {

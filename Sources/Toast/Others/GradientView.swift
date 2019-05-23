@@ -2,8 +2,8 @@
 //  GradientView.swift
 //  Toast
 //
-//  Created by 慧趣小歪 on 2017/8/26.
-//  Copyright © 2017年 yFenFen. All rights reserved.
+//  Created by bujiandi on 2017/8/26.
+//  Copyright © 2017 bujiandi. All rights reserved.
 //
 
 import UIKit

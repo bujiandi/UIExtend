@@ -12,12 +12,12 @@ import UIKit
 
 open class ToastManager<T:ToastBaseTask> {
     
-    public var queue:[T] // ToastQueue<T>
-    public func append(_ task:T) {
-        if let index = queue.firstIndex(where: { $0 === task }) {
+    public var queue:[(T, animated:Bool)] // ToastQueue<T>
+    public func append(_ task:T, animated flag:Bool) {
+        if let index = queue.firstIndex(where: { $0.0 === task }) {
             queue.remove(at: index)
         }
-        queue.append(task)
+        queue.append((task, animated: flag))
     }
 
     internal lazy var lastTime:TimeInterval = CACurrentMediaTime()
@@ -29,7 +29,7 @@ open class ToastManager<T:ToastBaseTask> {
         windowLevel = level
         animDamping = damping
         animateCall = animate
-        queue = [T]()    // ToastQueue<T>()
+        queue = [(T, animated:Bool)]()    // ToastQueue<T>()
         
         // 处理内存警告监听
         NotificationCenter.default.addObserver(self, selector: #selector(didReceiveMemoryWarning), name: UIApplication.didReceiveMemoryWarningNotification, object: nil)
@@ -108,7 +108,6 @@ open class ToastManager<T:ToastBaseTask> {
         if queue.count == 0 {
             if _window?.isKeyWindow ?? false {
                 UIApplication.shared.delegate?.window??.becomeKey()
-//                UIApplication.shared.delegate?.window??.makeKey()
             }
             _window?.isHidden = true
             _window = nil
@@ -146,7 +145,7 @@ open class ToastManager<T:ToastBaseTask> {
     
     @discardableResult
     public func remove(_ task:T) -> Bool {
-        if let index = queue.firstIndex(where: { $0 === task }) {
+        if let index = queue.firstIndex(where: { $0.0 === task }) {
             queue.remove(at: index)
             return true
         }

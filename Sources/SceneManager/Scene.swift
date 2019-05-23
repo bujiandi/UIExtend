@@ -6,6 +6,9 @@
 //
 
 import UIKit
+//#if canImport(Toast)
+import Toast
+//#endif
 
 public protocol Scene: class {
     
@@ -19,6 +22,77 @@ public protocol Scene: class {
     func onBuild(with params:Params)
     
 }
+
+//#if canImport(Toast)
+
+extension Scene {
+    
+    /// Toast.custom覆盖显示下一个页面
+    @discardableResult
+    public func toast<S:Scene>(scene:S, with params: @autoclosure () -> S.Params, animated flag: Bool = true) -> ToastCustom {
+        let custom = _toast(scene, animated: flag)
+        _loadSceneIfNeed(scene)
+        let paramValues = params()
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild(with: paramValues)
+        }
+        return custom
+    }
+    
+    /// Toast.custom覆盖显示下一个页面
+    @discardableResult
+    public func toast<S:Scene>(scene:S, animated flag: Bool = true) -> ToastCustom where S.Params == Null {
+        let custom = _toast(scene, animated: flag)
+        _loadSceneIfNeed(scene)
+        DispatchQueue.main.async { [weak scene] in
+            scene?.onBuild{}
+        }
+        return custom
+    }
+    
+    private func _toast<S:Scene>(_ scene:S, animated flag: Bool = true) -> ToastCustom {
+        
+        let container = UIView(frame: UIScreen.main.bounds)
+        let customToast = Toast.custom(controller: scene.vc, container: container)
+        customToast.layoutContainerOn { (root, toast) in
+            toast.container.layout(to: root, insets: .zero)
+        }
+        customToast.layoutContentOn { (container, toast) in
+            toast.content.layout(to: container, insets: .zero)
+        }
+//        if flag {
+//            _ = customToast.showAnimations { toast in
+//                toast.container.layer.animate(forKey: "sceneAnimation") {
+//                    $0.layer.opacity = 1
+//                    $0.opacity.value(to: 1, duration: 0.25).timingFunction(.easeInOut)
+//                }
+//            }
+//        } else {
+//            _ = customToast.showAnimations { _ in }
+//        }
+        SceneManager.shared.push(scene, pop: { //[weak customToast] in
+//            if $0 {
+//                _ = customToast.hideAnimations{ toast in
+//                    toast.container.layer.animate(forKey: "sceneAnimation") {
+//                        $0.layer.opacity = 0
+//                        $0.opacity.value(to: 0, duration: 0.25).timingFunction(.easeInOut)
+//                    }
+//                }
+//            } else {
+//                _ = customToast.hideAnimations{ _ in }
+//            }
+            customToast.hide(animated: $0)
+        })
+        defer {
+            DispatchQueue.main.async { [weak customToast] in
+                customToast?.show(animated: flag)
+            }
+        }
+        return customToast
+    }
+}
+
+//#endif
 
 extension Scene {
     

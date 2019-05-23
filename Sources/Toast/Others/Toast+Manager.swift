@@ -94,7 +94,7 @@ extension Toast {
                 isLowSelf = true
             }
         }
-        return UIApplication.shared.keyWindow ?? UIApplication.shared.windows[0]
+        return UIApplication.shared.keyWindow ?? UIApplication.shared.windows.first
     }
 
 }

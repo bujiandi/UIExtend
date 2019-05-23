@@ -42,7 +42,6 @@ open class ToastQueue<Task:ToastBaseTask>: ExpressibleByArrayLiteral, Sequence {
     }
     
     open func remove(at index:Int) {
-        queue.removeFirst()
         queue.remove(at: index)
     }
     

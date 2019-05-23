@@ -60,9 +60,9 @@ open class ToastLabelTask : ToastBaseTask {
     }
     
     @discardableResult
-    open override func hide() -> Self {
+    open override func hide(animated flag:Bool = true) -> Self {
         dismissTime = 0
-        super.hide()
+        super.hide(animated: flag)
         return self
     }
     

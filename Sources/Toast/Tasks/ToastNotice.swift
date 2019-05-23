@@ -12,13 +12,13 @@ import OperatorLayout
 public final class ToastNotice : ToastLabelTask {
     
     @discardableResult
-    public override func show() -> ToastNotice {
+    public override func show(animated flag:Bool = true) -> ToastNotice {
         
         let manager = Toast.noticeManager
         
         // 如果是已存在的Toast 不再重复弹出, 摇晃当前内容
-        if let index = manager.queue.firstIndex(of: self) {
-            var task = manager.queue[index]
+        if let index = manager.queue.firstIndex(where: { $0.0 == self }) {
+            let (task, _) = manager.queue[index]
             if holdSecond > 0 {
                 task.dismissTime = CACurrentMediaTime() + holdSecond
             }
@@ -26,7 +26,7 @@ public final class ToastNotice : ToastLabelTask {
             return task
         }
         
-        manager.queue.append(self)
+        manager.queue.append((self, animated: flag))
         
         if holdSecond > 0 {
             dismissTime = CACurrentMediaTime() + holdSecond
@@ -36,13 +36,13 @@ public final class ToastNotice : ToastLabelTask {
             manager.animateCall(manager)
         }
         
-        super.show()
+        super.show(animated: flag)
         return self
     }
     
     @discardableResult
-    public override func hide() -> Self {
-        super.hide()
+    public override func hide(animated flag:Bool = true) -> Self {
+        super.hide(animated: flag)
         dismissTime = 1
         defer {
             Toast.noticeManager.animateCallThis()

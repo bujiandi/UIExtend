@@ -11,18 +11,18 @@ import UIKit
 open class ToastDialog: ToastOverlay {
     
     @discardableResult
-    open override func show() -> Self {
-        super.show()
-        Toast.dialogManager.append(self)
-        Toast.dialogManager.animateCallThis()//.resetTimer(minTime: 0.05)
+    open override func show(animated flag:Bool = true) -> Self {
+        super.show(animated: flag)
+        Toast.dialogManager.append(self, animated: flag)
+        defer { Toast.dialogManager.animateCallThis() } //.resetTimer(minTime: 0.05)
         return self
     }
     
     @discardableResult
-    open override func hide() -> Self {
-        super.hide()
+    open override func hide(animated flag:Bool = true) -> Self {
+        super.hide(animated: flag)
         if  Toast.dialogManager.remove(self) {
-            Toast.removeManager.append(self)
+            Toast.removeManager.append(self, animated: flag)
             Toast.removeManager.animateCallThis()
             Toast.dialogManager.resetTimer(minTime: Toast.setting.animDuration + 0.08)
         }
