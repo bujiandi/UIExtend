@@ -87,7 +87,7 @@ let package = Package(
             ]),
         .target(
             name: "SceneManager",
-            dependencies: ["Toast"],
+            dependencies: ["Displayer","Toast"],
             linkerSettings: [
                 .linkedFramework("UIKit"),
             ]),

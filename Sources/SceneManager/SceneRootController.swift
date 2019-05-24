@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import Displayer
 
 public protocol SceneRootController {
     var rootNavigationController:UINavigationController? { get }
 }
 
 
+extension UIView : Viewer {}

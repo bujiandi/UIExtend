@@ -60,27 +60,8 @@ extension Scene {
         customToast.layoutContentOn { (container, toast) in
             toast.content.layout(to: container, insets: .zero)
         }
-//        if flag {
-//            _ = customToast.showAnimations { toast in
-//                toast.container.layer.animate(forKey: "sceneAnimation") {
-//                    $0.layer.opacity = 1
-//                    $0.opacity.value(to: 1, duration: 0.25).timingFunction(.easeInOut)
-//                }
-//            }
-//        } else {
-//            _ = customToast.showAnimations { _ in }
-//        }
-        SceneManager.shared.push(scene, pop: { //[weak customToast] in
-//            if $0 {
-//                _ = customToast.hideAnimations{ toast in
-//                    toast.container.layer.animate(forKey: "sceneAnimation") {
-//                        $0.layer.opacity = 0
-//                        $0.opacity.value(to: 0, duration: 0.25).timingFunction(.easeInOut)
-//                    }
-//                }
-//            } else {
-//                _ = customToast.hideAnimations{ _ in }
-//            }
+
+        SceneManager.shared.push(scene, pop: {
             customToast.hide(animated: $0)
         })
         defer {
@@ -197,70 +178,26 @@ extension Scene {
         
     }
     
-    /// 返回到根
-    public func backToRoot() {
-        if SceneManager.shared.sceneStack.count == 1 { return }
-        let sceneManager = SceneManager.shared
-        let lastSceneAction = sceneManager.sceneStack.removeLast()
-        lastSceneAction.dismissWithAnimated(true)
-        
-        for i in (1..<sceneManager.sceneStack.count).reversed() {
-            sceneManager.sceneStack[i].dismissWithAnimated(false)
-            sceneManager.sceneStack.remove(at: i)
-        }
-        // 如果没找到所需退回的页面,则尝试退到根页面
-        if let rootScene = sceneManager.sceneStack.first?.scene as? SceneIsRoot {
-            lastSceneAction.popWithAnimated(true)
-            DispatchQueue.main.async { [weak rootScene] in
-                rootScene?.onBuild()
-            }
-        } else if sceneManager.sceneStack.first?.scene is Scene {
-            lastSceneAction.popWithAnimated(true)
-        }
+    @inlinable public var isCurrent:Bool {
+        return SceneManager.shared.wasCurrent(scene: self)
     }
     
-    public func back<S:Scene>(to sceneType:S.Type) where S.Params == Null {
+    /// 返回到根
+    @inlinable public func backToRoot() {
+        SceneManager.shared.backToRoot()
+    }
+    
+    /// 返回到指定页面
+    @inlinable public func back<S:Scene>(to sceneType:S.Type) where S.Params == Null {
         back(to: sceneType, with: {})
     }
     
     /// 返回到指定页面
-    public func back<S:Scene>(to sceneType:S.Type, with params:@autoclosure () -> S.Params) {
-        if SceneManager.shared.sceneStack.count == 1 { return }
-        let this = self as AnyObject
-        let sceneManager = SceneManager.shared
-        let lastSceneAction = sceneManager.sceneStack.removeLast()
-        guard this === lastSceneAction.scene else {
+    @inlinable public func back<S:Scene>(to sceneType:S.Type, with params:@autoclosure () -> S.Params) {
+        guard isCurrent else {
             fatalError("unknow pop to \(sceneType) from \(self)")
         }
-        
-        CATransaction.begin()
-        lastSceneAction.dismissWithAnimated(true)
-        for i in (0..<sceneManager.sceneStack.count).reversed() {
-            if let scene = sceneManager.sceneStack[i].scene as? S {
-                lastSceneAction.popWithAnimated(true)
-                _loadSceneIfNeed(scene)
-                let paramValues = params()
-                DispatchQueue.main.async { [weak scene] in
-                    scene?.onBuild(with: paramValues)
-                }
-                CATransaction.commit()
-                return
-            } else if i > 0 {
-                sceneManager.sceneStack[i].dismissWithAnimated(true)
-                sceneManager.sceneStack[i].popWithAnimated(false)
-                sceneManager.sceneStack.remove(at: i)
-            }
-        }
-        // 如果没找到所需退回的页面,则尝试退到根页面
-        if let rootScene = sceneManager.sceneStack.first?.scene as? SceneIsRoot {
-            lastSceneAction.popWithAnimated(true)
-            DispatchQueue.main.async { [weak rootScene] in
-                rootScene?.onBuild()
-            }
-        } else if sceneManager.sceneStack.first?.scene is S {
-            lastSceneAction.popWithAnimated(true)
-        }
-        CATransaction.commit()
+        SceneManager.shared.back(to: sceneType, with: params())
     }
     
     

@@ -61,11 +61,78 @@ open class SceneManager {
     
     var sceneStack:[SceneCloseAction] = [SceneCloseAction]()
     
-    public func push<S:Scene>(_ scene:S, pop: @escaping (Bool) -> Void) {
-        sceneStack.append(SceneCloseAction(scene as AnyObject, pop: pop))
+    public func push<S:Scene>(_ scene:S, pop closure: @escaping (Bool) -> Void) {
+        sceneStack.append(SceneCloseAction(scene as AnyObject, pop: closure))
     }
     
-    public func present<S:Scene>(_ scene:S, dismiss: @escaping (Bool) -> Void) {
-        sceneStack.append(SceneCloseAction(scene as AnyObject, dismiss: dismiss))
+    public func present<S:Scene>(_ scene:S, dismiss closure: @escaping (Bool) -> Void) {
+        sceneStack.append(SceneCloseAction(scene as AnyObject, dismiss: closure))
+    }
+    
+    public func wasCurrent<S:Scene>(scene:S) -> Bool {
+        return scene === sceneStack.last?.scene
+    }
+    
+    /// 返回到根
+    public func backToRoot() {
+        if sceneStack.count == 1 { return }
+        let lastSceneAction = sceneStack.removeLast()
+        lastSceneAction.dismissWithAnimated(true)
+        
+        for i in (1..<sceneStack.count).reversed() {
+            sceneStack[i].dismissWithAnimated(false)
+            sceneStack.remove(at: i)
+        }
+        // 如果没找到所需退回的页面,则尝试退到根页面
+        if let rootScene = sceneStack.first?.scene as? SceneIsRoot {
+            lastSceneAction.popWithAnimated(true)
+            DispatchQueue.main.async { [weak rootScene] in
+                rootScene?.onBuild()
+            }
+        } else if sceneStack.first?.scene is Scene {
+            lastSceneAction.popWithAnimated(true)
+        }
+    }
+    
+    /// 返回到指定页面
+    public func back<S:Scene>(to sceneType:S.Type) where S.Params == Scene.Null {
+        back(to: sceneType, with: {})
+    }
+    
+    /// 返回到指定页面
+    public func back<S:Scene>(to sceneType:S.Type, with params:@autoclosure () -> S.Params) {
+        if sceneStack.count == 1 { return }
+        let lastSceneAction = sceneStack.removeLast()
+        
+        CATransaction.begin()
+        lastSceneAction.dismissWithAnimated(true)
+        for i in (0..<sceneStack.count).reversed() {
+            if let scene = sceneStack[i].scene as? S {
+                lastSceneAction.popWithAnimated(true)
+                if !(scene.vc?.isViewLoaded ?? true) {
+                    scene.vc.view.setNeedsLayout()
+                }
+                let paramValues = params()
+                DispatchQueue.main.async { [weak scene] in
+                    scene?.onBuild(with: paramValues)
+                }
+                CATransaction.commit()
+                return
+            } else if i > 0 {
+                sceneStack[i].dismissWithAnimated(true)
+                sceneStack[i].popWithAnimated(false)
+                sceneStack.remove(at: i)
+            }
+        }
+        // 如果没找到所需退回的页面,则尝试退到根页面
+        if let rootScene = sceneStack.first?.scene as? SceneIsRoot {
+            lastSceneAction.popWithAnimated(true)
+            DispatchQueue.main.async { [weak rootScene] in
+                rootScene?.onBuild()
+            }
+        } else if sceneStack.first?.scene is S {
+            lastSceneAction.popWithAnimated(true)
+        }
+        CATransaction.commit()
     }
 }
