@@ -107,6 +107,7 @@ open class ToastManager<T:ToastBaseTask> {
     internal func hideWindowIfNeed() {
         if queue.count == 0 {
             if _window?.isKeyWindow ?? false {
+                _window?.endEditing(true)
                 UIApplication.shared.delegate?.window??.becomeKey()
             }
             _window?.isHidden = true

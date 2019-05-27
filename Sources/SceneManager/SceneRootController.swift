@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Displayer
+import Adapter
 
 public protocol SceneRootController {
     var rootNavigationController:UINavigationController? { get }

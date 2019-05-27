@@ -25,6 +25,9 @@ let package = Package(
             name: "OperatorLayout",
             targets: ["OperatorLayout"]),
         .library(
+            name: "Refresh",
+            targets: ["Refresh"]),
+        .library(
             name: "Toast",
             targets: ["Toast"]),
         .library(
@@ -74,6 +77,12 @@ let package = Package(
                 .linkedFramework("UIKit"),
             ]),
         .target(
+            name: "Refresh",
+            dependencies: ["OperatorLayout","CoreAnimations"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+            ]),
+        .target(
             name: "ImageCache",
             dependencies: ["JSON","HTTP","Extend"],
             linkerSettings: [
@@ -87,7 +96,7 @@ let package = Package(
             ]),
         .target(
             name: "SceneManager",
-            dependencies: ["Displayer","Toast"],
+            dependencies: ["Adapter","Toast"],
             linkerSettings: [
                 .linkedFramework("UIKit"),
             ]),

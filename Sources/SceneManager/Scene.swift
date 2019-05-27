@@ -51,16 +51,22 @@ extension Scene {
     }
     
     private func _toast<S:Scene>(_ scene:S, animated flag: Bool = true) -> ToastCustom {
-        
         let container = UIView(frame: UIScreen.main.bounds)
-        let customToast = Toast.custom(controller: scene.vc, container: container)
+        let customToast:ToastCustom
+        if let naviClazz = vc.navigationController?.classForCoder as? UINavigationController.Type {
+            // 若前置页面有导航则创建默认导航
+            let navi:UINavigationController! = naviClazz.init()
+            navi.setViewControllers([scene.vc], animated: false)
+            customToast = Toast.custom(controller: navi, container: container)
+        } else {
+            customToast = Toast.custom(controller: scene.vc, container: container)
+        }
         customToast.layoutContainerOn { (root, toast) in
             toast.container.layout(to: root, insets: .zero)
         }
         customToast.layoutContentOn { (container, toast) in
             toast.content.layout(to: container, insets: .zero)
         }
-
         SceneManager.shared.push(scene, pop: {
             customToast.hide(animated: $0)
         })

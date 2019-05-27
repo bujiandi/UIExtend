@@ -1,4 +1,4 @@
 
 @_exported import UIKit
 @_exported import Toast
-@_exported import Displayer
+@_exported import Adapter

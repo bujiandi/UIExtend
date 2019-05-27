@@ -262,9 +262,11 @@ extension Toast {
     // MARK: - overlay
     public static func overlayAnimate(manager:ToastManager<ToastOverlay>) {
         
-        DispatchQueue.main.async { [weak manager] in
-            manager?.hideWindowIfNeed()
-        }
+//        DispatchQueue.main.async { [weak manager] in
+//
+//        }
+
+        manager.hideWindowIfNeed()
         
         guard let (task, animated) = manager.queue.first else { return }
         

@@ -24,11 +24,11 @@ extension Toast {
     
     /// 气泡提示消息管理器 in statusBarWindow like popover
     public static let bubbleManager = ToastManager<ToastOverlay>(UIWindow.Level.statusBar + 30, damping: setting.animBubbleDamping, animate: overlayAnimate)
-    public static var bubble:ToastBubble? { return bubbleManager.queue.first as? ToastBubble }
+    public static var bubble:ToastBubble? { return bubbleManager.queue.first?.0 as? ToastBubble }
     
     /// 活动提示消息管理器 in statusBarWindow is custom view
     public static let activeManager = ToastManager<ToastOverlay>(UIWindow.Level.statusBar + 20, damping: setting.animActiveDamping, animate: overlayAnimate)
-    public static var active:ToastActive? { return activeManager.queue.first as? ToastActive }
+    public static var active:ToastActive? { return activeManager.queue.first?.0 as? ToastActive }
     
     /// 底部交互消息管理器 in alertWindow only once at screen top or bottom and can tapped
     public static let dialogManager = ToastManager<ToastOverlay>(UIWindow.Level.statusBar + 10, animate: overlayAnimate)
@@ -37,7 +37,7 @@ extension Toast {
     
     /// 定制提示消息管理器 in statusBarWindow is custom view
     public static let customManager = ToastManager<ToastOverlay>(UIWindow.Level.normal + 10, damping: setting.animCustomDamping, animate: overlayAnimate)
-    public static var custom:ToastCustom? { return customManager.queue.first as? ToastCustom }
+    public static var custom:ToastCustom? { return customManager.queue.first?.0 as? ToastCustom }
     
   
     public static var defaultAttributes:[NSAttributedString.Key : Any] {
