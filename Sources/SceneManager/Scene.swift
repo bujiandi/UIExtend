@@ -67,7 +67,7 @@ extension Scene {
         customToast.layoutContentOn { (container, toast) in
             toast.content.layout(to: container, insets: .zero)
         }
-        SceneManager.shared.push(scene, pop: {
+        SceneManager.shared.present(scene, dismiss: {
             customToast.hide(animated: $0)
         })
         defer {

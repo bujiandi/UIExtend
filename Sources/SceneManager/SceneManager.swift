@@ -30,6 +30,7 @@ open class SceneManager {
     
     open func setRoot<S:Scene>(_ scene:S, with params: @autoclosure () -> S.Params, animated flag: Bool = true) {
         sceneStack = [SceneCloseAction(scene as AnyObject, pop: { _ in })]
+        mainWindow.rootViewController?.view.setNeedsDisplay()
         if  let root = mainWindow.rootViewController as? SceneRootController,
             let navi = root.rootNavigationController {
             navi.setViewControllers([scene.vc], animated: flag)

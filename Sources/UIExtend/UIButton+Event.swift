@@ -12,6 +12,8 @@ private var kButtonTouchUpInsideEvent = "button.touch.up.inside.event"
 
 extension UIButton {
     
+    
+    
     public func whenTouchUpInside(_ action: @escaping (UIButton) -> Void) {
         objc_setAssociatedObject(self, &kButtonTouchUpInsideEvent, action, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         addTarget(self, action: #selector(dispatchedTouchUpInside), for: .touchUpInside)
@@ -21,4 +23,13 @@ extension UIButton {
         let action = objc_getAssociatedObject(self, &kButtonTouchUpInsideEvent) as? (UIButton) -> Void
         action?(self)
     }
+}
+
+extension UIControl {
+    
+    public func setTarget(_ target: Any?, action: Selector, for controlEvents: Event) {
+        removeTarget(target, action: action, for: controlEvents)
+        addTarget(target, action: action, for: controlEvents)
+    }
+    
 }
