@@ -106,12 +106,15 @@ open class ToastManager<T:ToastBaseTask> {
     
     internal func hideWindowIfNeed() {
         if queue.count == 0 {
+            objc_sync_enter(_window as Any)
             if _window?.isKeyWindow ?? false {
+                // 提前结束编辑窗口,避免 _window 属性多线程置空冲突
                 _window?.endEditing(true)
                 UIApplication.shared.delegate?.window??.becomeKey()
             }
             _window?.isHidden = true
             _window = nil
+            objc_sync_exit(_window as Any)
         }
     }
     

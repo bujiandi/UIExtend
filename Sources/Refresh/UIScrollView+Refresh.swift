@@ -36,6 +36,14 @@ extension UIScrollView {
     @discardableResult
     public func setRefreshHeader<V>(contentView:V, hasBar:Bool = true, _ action: @escaping (HeaderRefreshView<V>) -> Void) -> HeaderRefreshView<V> {
         
+        for view in subviews {
+            let obj = view as AnyObject
+            if  obj is HeaderRefreshView<V> {
+                view.removeFromSuperview()
+                break
+            }
+        }
+        
         let header = HeaderRefreshView<V>()
         header.layoutMargins = .zero
         header.hasBar = hasBar
@@ -75,6 +83,14 @@ extension UIScrollView {
     
     @discardableResult
     public func setRefreshFooter<V>(contentView:V, hasBar:Bool = false, _ action: @escaping (FooterRefreshView<V>) -> Void) -> FooterRefreshView<V> {
+        
+        for view in subviews {
+            let obj = view as AnyObject
+            if  obj is FooterRefreshView<V> {
+                view.removeFromSuperview()
+                break
+            }
+        }
         
         let footer = FooterRefreshView<V>()
         footer.layoutMargins = .zero

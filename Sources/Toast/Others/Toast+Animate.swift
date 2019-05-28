@@ -21,8 +21,15 @@ extension Toast {
         manager.queue.removeAll(keepingCapacity: false)
         
         for (task, animated) in queue {
-            task._hideAnimations(task)
-            DispatchQueue.main.asyncAfter(deadline: .now() + task.hideDuration) {
+            if animated {
+                task._hideAnimations(task)
+                DispatchQueue.main.asyncAfter(deadline: .now() + task.hideDuration) {
+                    task.container.superview?.removeConstraints(by: task.container)
+                    task.container.removeFromSuperview()
+                    task.childController?.removeFromParent()
+                    task.dismissBlock?()
+                }
+            } else {
                 task.container.superview?.removeConstraints(by: task.container)
                 task.container.removeFromSuperview()
                 task.childController?.removeFromParent()
@@ -122,9 +129,16 @@ extension Toast {
             removeManager.animateCall(removeManager)
         }
         
+        for (task, animated) in manager.queue where !animated {
+            if task.centerY == nil {
+                task.container.frame = task.frame
+            }
+            task.container.alpha = task.alpha
+        }
+        
         UIView.animate(withDuration: setting.animDuration, delay: 0, usingSpringWithDamping: 0.7, initialSpringVelocity: 20, options: [.curveEaseInOut], animations: {
             
-            for (task, animated) in manager.queue {
+            for (task, animated) in manager.queue where animated {
                 if task.centerY == nil {
                     task.container.frame = task.frame
                 }
