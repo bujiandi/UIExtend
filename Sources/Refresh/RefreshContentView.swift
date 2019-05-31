@@ -11,6 +11,7 @@ import OperatorLayout
 
 open class RefreshContentView : UIView, Animationable {
     
+    public var autoUpdateDateText:Bool = true
     
     /// 根据百分比数值确定状态
     public var state:RefreshState {
@@ -57,6 +58,7 @@ open class RefreshContentView : UIView, Animationable {
     }
     
     private func updateRefreshDate() {
+        if !autoUpdateDateText { return }
         
         var dateText = "最近更新：无"
         if let date = lastRefreshDate {
