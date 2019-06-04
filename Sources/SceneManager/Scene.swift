@@ -25,12 +25,18 @@ public protocol Scene: class {
 
 //#if canImport(Toast)
 
+public enum ToastLevel:Int, Codable {
+    case custom
+    case dialog
+    case active
+}
+
 extension Scene {
     
-    /// Toast.custom覆盖显示下一个页面
+    /// Toast overlay 覆盖显示下一个页面
     @discardableResult
-    public func toast<S:Scene>(scene:S, with params: @autoclosure () -> S.Params, animated flag: Bool = true) -> ToastCustom {
-        let custom = _toast(scene, animated: flag)
+    public func toast<S:Scene>(scene:S, atLevel level:ToastLevel = .custom, with params: @autoclosure () -> S.Params, animated flag: Bool = true) -> ToastOverlay {
+        let custom = _toast(scene, atLevel: level, animated: flag)
         _loadSceneIfNeed(scene)
         let paramValues = params()
         DispatchQueue.main.async { [weak scene] in
@@ -39,10 +45,10 @@ extension Scene {
         return custom
     }
     
-    /// Toast.custom覆盖显示下一个页面
+    /// Toast overlay 覆盖显示下一个页面
     @discardableResult
-    public func toast<S:Scene>(scene:S, animated flag: Bool = true) -> ToastCustom where S.Params == Null {
-        let custom = _toast(scene, animated: flag)
+    public func toast<S:Scene>(scene:S, atLevel level:ToastLevel = .custom, animated flag: Bool = true) -> ToastOverlay where S.Params == Null {
+        let custom = _toast(scene, atLevel: level, animated: flag)
         _loadSceneIfNeed(scene)
         DispatchQueue.main.async { [weak scene] in
             scene?.onBuild{}
@@ -50,32 +56,43 @@ extension Scene {
         return custom
     }
     
-    private func _toast<S:Scene>(_ scene:S, animated flag: Bool = true) -> ToastCustom {
+    private func _toast<S:Scene>(_ scene:S, atLevel level:ToastLevel, animated flag: Bool = true) -> ToastOverlay {
         let container = UIView(frame: UIScreen.main.bounds)
-        let customToast:ToastCustom
+        let toastTask:ToastOverlay
+        let controller:UIViewController
         if let naviClazz = vc.navigationController?.classForCoder as? UINavigationController.Type {
             // 若前置页面有导航则创建默认导航
             let navi:UINavigationController! = naviClazz.init()
             navi.setViewControllers([scene.vc], animated: false)
-            customToast = Toast.custom(controller: navi, container: container)
+            controller = navi
         } else {
-            customToast = Toast.custom(controller: scene.vc, container: container)
+            controller = scene.vc
         }
-        customToast.layoutContainerOn { (root, toast) in
+        // toast overlay window level
+        switch level {
+        case .custom:
+            toastTask = Toast.custom(controller: controller, container: container)
+        case .dialog:
+            toastTask = Toast.dialog(controller: controller, container: container)
+        case .active:
+            toastTask = Toast.active(controller: controller, container: container)
+        }
+        
+        toastTask.layoutContainerOn { (root, toast) in
             toast.container.layout(to: root, insets: .zero)
         }
-        customToast.layoutContentOn { (container, toast) in
+        toastTask.layoutContentOn { (container, toast) in
             toast.content.layout(to: container, insets: .zero)
         }
         SceneManager.shared.present(scene, dismiss: {
-            customToast.hide(animated: $0)
+            toastTask.hide(animated: $0)
         })
         defer {
-            DispatchQueue.main.async { [weak customToast] in
-                customToast?.show(animated: flag)
+            DispatchQueue.main.async { [weak toastTask] in
+                toastTask?.show(animated: flag)
             }
         }
-        return customToast
+        return toastTask
     }
 }
 
@@ -184,26 +201,60 @@ extension Scene {
         
     }
     
+    /// 本场景是当前场景
     @inlinable public var isCurrent:Bool {
         return SceneManager.shared.wasCurrent(scene: self)
     }
     
+    /// 返回到上一个场景, 不触发 非SceneIsRoot 得 onBuild
+    public func backToPrevious(animated flag:Bool = true) {
+        let manager = SceneManager.shared
+        if manager.sceneStack.count == 1 { return }
+        let lastSceneAction = manager.sceneStack.removeLast()
+        
+        CATransaction.begin()
+        lastSceneAction.dismissWithAnimated(flag)
+        for i in (0..<manager.sceneStack.count).reversed() {
+            if i > 0 {
+                manager.sceneStack[i].dismissWithAnimated(flag)
+                manager.sceneStack[i].popWithAnimated(false)
+                manager.sceneStack.remove(at: i)
+            }
+            if manager.sceneStack[i].scene === self {
+                lastSceneAction.popWithAnimated(flag)
+                CATransaction.commit()
+                return
+            }
+        }
+        // 如果没找到所需退回的页面,则尝试退到根页面
+        if let rootScene = manager.sceneStack.first?.scene as? SceneIsRoot {
+            lastSceneAction.popWithAnimated(flag)
+            DispatchQueue.main.async { [weak rootScene] in
+                rootScene?.onBuild()
+            }
+        } else {
+            lastSceneAction.popWithAnimated(flag)
+        }
+        CATransaction.commit()
+    }
+
+    
     /// 返回到根
-    @inlinable public func backToRoot() {
-        SceneManager.shared.backToRoot()
+    @inlinable public func backToRoot(animated flag:Bool = true) {
+        SceneManager.shared.backToRoot(animated: flag)
     }
     
     /// 返回到指定页面
-    @inlinable public func back<S:Scene>(to sceneType:S.Type) where S.Params == Null {
-        back(to: sceneType, with: {})
+    @inlinable public func back<S:Scene>(to sceneType:S.Type, animated flag:Bool = true) where S.Params == Null {
+        back(to: sceneType, animated: flag, with: {})
     }
     
     /// 返回到指定页面
-    @inlinable public func back<S:Scene>(to sceneType:S.Type, with params:@autoclosure () -> S.Params) {
+    @inlinable public func back<S:Scene>(to sceneType:S.Type, animated flag:Bool = true, with params:@autoclosure () -> S.Params) {
         guard isCurrent else {
             fatalError("unknow pop to \(sceneType) from \(self)")
         }
-        SceneManager.shared.back(to: sceneType, with: params())
+        SceneManager.shared.back(to: sceneType, animated: flag, with: params())
     }
     
     

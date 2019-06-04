@@ -1,6 +1,56 @@
 
 import UIKit
 
+@inlinable public func pixal(_ value:CGFloat, min:CGFloat = CGFloat.infinity, max:CGFloat = CGFloat.infinity) -> CGFloat {
+    let scale = UIScreen.main.scale
+    var result = value
+    if min != .infinity {
+        result = Swift.max(min, result)
+    }
+    if max != .infinity {
+        result = Swift.min(max, result)
+    }
+    return ceil(result * scale) / scale
+}
+
+@inlinable public func pixal(_ value:CGFloat, in range:Range<CGFloat>) -> CGFloat {
+    let scale = UIScreen.main.scale
+    var result = value
+    result = Swift.max(range.lowerBound, result)
+    result = Swift.min(range.upperBound + 1, result)
+    return ceil(result * scale) / scale
+}
+
+@inlinable public func pixal(_ value:CGFloat, in range:ClosedRange<CGFloat>) -> CGFloat {
+    let scale = UIScreen.main.scale
+    var result = value
+    result = Swift.max(range.lowerBound, result)
+    result = Swift.min(range.upperBound, result)
+    return ceil(result * scale) / scale
+}
+
+@inlinable public func pixal(_ value:CGFloat, in range:CountableClosedRange<Int>) -> CGFloat {
+    let scale = UIScreen.main.scale
+    var result = value
+    result = Swift.max(CGFloat(range.lowerBound), result)
+    result = Swift.min(CGFloat(range.upperBound), result)
+    return ceil(result * scale) / scale
+}
+
+@inlinable public func pixal(_ value:CGFloat, in range:PartialRangeThrough<Int>) -> CGFloat {
+    let scale = UIScreen.main.scale
+    var result = value
+    result = Swift.min(CGFloat(range.upperBound), result)
+    return ceil(result * scale) / scale
+}
+
+@inlinable public func pixal(_ value:CGFloat, in range:CountablePartialRangeFrom<Int>) -> CGFloat {
+    let scale = UIScreen.main.scale
+    var result = value
+    result = Swift.max(CGFloat(range.lowerBound), result)
+    return ceil(result * scale) / scale
+}
+
 public protocol KeyboardRootManager: class {
     
     var offsetLayout:NSLayoutConstraint? { get }
