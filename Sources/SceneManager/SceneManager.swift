@@ -55,7 +55,7 @@ open class SceneManager {
         }
         let paramValues = params()
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild(with: paramValues)
+            scene?.building(with: paramValues)
         }
         
     }

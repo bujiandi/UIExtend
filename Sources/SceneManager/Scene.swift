@@ -19,7 +19,17 @@ public protocol Scene: class {
     
     var vc:VC! { get }
     
+    func didLoad()
     func onBuild(with params:Params)
+    
+}
+
+extension Scene {
+    
+    internal func building(with params:Params) {
+        didLoad()
+        onBuild(with: params)
+    }
     
 }
 
@@ -40,7 +50,7 @@ extension Scene {
         _loadSceneIfNeed(scene)
         let paramValues = params()
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild(with: paramValues)
+            scene?.building(with: paramValues)
         }
         return custom
     }
@@ -51,7 +61,7 @@ extension Scene {
         let custom = _toast(scene, atLevel: level, animated: flag)
         _loadSceneIfNeed(scene)
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild{}
+            scene?.building{}
         }
         return custom
     }
@@ -106,7 +116,7 @@ extension Scene {
         _loadSceneIfNeed(scene)
         let paramValues = params()
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild(with: paramValues)
+            scene?.building(with: paramValues)
         }
     }
     
@@ -116,7 +126,7 @@ extension Scene {
         _push(scene, animated: flag)
         _loadSceneIfNeed(scene)
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild{}
+            scene?.building{}
         }
     }
     
@@ -126,7 +136,7 @@ extension Scene {
         _loadSceneIfNeed(scene)
         let paramValues = params()
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild(with: paramValues)
+            scene?.building(with: paramValues)
         }
     }
     
@@ -136,7 +146,7 @@ extension Scene {
         _present(scene, animated: flag)
         _loadSceneIfNeed(scene)
         DispatchQueue.main.async { [weak scene] in
-            scene?.onBuild{}
+            scene?.building{}
         }
     }
     
