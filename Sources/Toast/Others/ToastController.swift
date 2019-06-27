@@ -68,9 +68,10 @@ class OverlayToastView : UIView {
                 return view
             }
             
-            let keyWindow:UIWindow? = Toast.getLowWindow(by: window)
-            //print("操作穿透")
-            return keyWindow?.hitTest(point, with: event)
+//            let keyWindow:UIWindow? = Toast.getLowWindow(by: window)
+//            //print("操作穿透")
+//            return keyWindow?.hitTest(point, with: event)
+            return nil
         }
         return view
     }

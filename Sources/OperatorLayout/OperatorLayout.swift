@@ -10,24 +10,31 @@ import UIKit
 
 #if swift(>=5.1)
 
+public protocol LayoutConstraintElements {
+    var list:[NSLayoutConstraint] { get }
+}
+
+extension NSLayoutConstraint: LayoutConstraintElements {
+    public var list:[NSLayoutConstraint] { return [self] }
+}
+
+extension Array : LayoutConstraintElements where Element : NSLayoutConstraint {
+    public var list:[NSLayoutConstraint] { return self }
+}
+
 @_functionBuilder public struct LayoutBuilder {
     
-    /// Builds an empty view from an block containing no statements, `{ }`.
-    public static func buildBlock() -> [NSLayoutConstraint] {
-        return []
-    }
-    
-    /// Passes a single view written as a child view (e..g, `{ Text("Hello") }`) through
-    /// unmodified.
-    public static func buildBlock(_ constraints: NSLayoutConstraint?...) -> [NSLayoutConstraint] {
-        return constraints.compactMap { $0 }
-    }
-    
-    /// Passes a single view written as a child view (e..g, `{ Text("Hello") }`) through
-    /// unmodified.
-//    public static func buildBlock(_ constraints: [NSLayoutConstraint]...) -> [[NSLayoutConstraint]] {
-//        return constraints //constraints.compactMap { $0 }
+//    /// Builds an empty layout constraints from an block containing no statements, `{ }`.
+//    public static func buildBlock() -> [NSLayoutConstraint] {
+//        return []
 //    }
+    
+    /// Passes mutiable layout constraints written as a children layout constraints (e..g, `{ a.anchor.top == b.anchor.top ... }`) through
+    public static func buildBlock(_ constraints: LayoutConstraintElements?...) -> [NSLayoutConstraint] {
+        return constraints
+            .compactMap { $0?.list }
+            .reduce([], +)
+    }
     
 }
 
@@ -36,36 +43,27 @@ extension LayoutBuilder {
     
     /// Provides support for "if" statements in multi-statement closures, producing an `Optional` view
     /// that is visible only when the `if` condition evaluates `true`.
-    public static func buildOptional(_ content: NSLayoutConstraint?) -> NSLayoutConstraint? {
+    public static func buildIf(_ content: [NSLayoutConstraint]?) -> [NSLayoutConstraint]? {
         return content
     }
     
-    /// Provides support for "if" statements in multi-statement closures, producing an `Optional` view
-    /// that is visible only when the `if` condition evaluates `true`.
-    public static func buildIf(_ content: NSLayoutConstraint?) -> NSLayoutConstraint? {
-        return content//.compactMap { $0 } //content ?? []
-    }
-    
     /// Provides support for "if" statements in multi-statement closures, producing
-    /// ConditionalContent for the "then" branch.
-    public static func buildEither(first: NSLayoutConstraint?) -> NSLayoutConstraint? {
+    /// [NSLayoutConstraint] for the "then" branch.
+    public static func buildEither(first: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
         return first
     }
     
     /// Provides support for "if-else" statements in multi-statement closures, producing
-    /// ConditionalContent for the "else" branch.
-    public static func buildEither(second: NSLayoutConstraint?) -> NSLayoutConstraint? {
+    /// [NSLayoutConstraint] for the "else" branch.
+    public static func buildEither(second: [NSLayoutConstraint]) -> [NSLayoutConstraint] {
         return second
     }
 }
 
 extension UIView {
 
-    public func layout(@LayoutBuilder layoutConstraints: () -> [NSLayoutConstraint]) {
-//        for layouts in layoutConstraints() {
-//            addConstraints(layouts)
-//        }
-        addConstraints(layoutConstraints())
+    public func layoutConstraints(@LayoutBuilder _ layouts: () -> [NSLayoutConstraint]) {
+        addConstraints(layouts())
     }
     
 }
