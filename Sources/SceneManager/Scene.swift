@@ -224,15 +224,19 @@ extension Scene {
         
         CATransaction.begin()
         lastSceneAction.dismissWithAnimated(flag)
-        for i in (0..<manager.sceneStack.count).reversed() {
-            if manager.sceneStack[i].scene === self {
+        if lastSceneAction.scene === self {
+            lastSceneAction.popWithAnimated(flag)
+            CATransaction.commit()
+            return
+        }
+        for i in (1..<manager.sceneStack.count).reversed() {
+            let sceneAction = manager.sceneStack.remove(at: i)
+            sceneAction.dismissWithAnimated(flag)
+            sceneAction.popWithAnimated(false)
+            if sceneAction.scene === self {
                 lastSceneAction.popWithAnimated(flag)
                 CATransaction.commit()
                 return
-            } else if i > 0 {
-                manager.sceneStack[i].dismissWithAnimated(flag)
-                manager.sceneStack[i].popWithAnimated(false)
-                manager.sceneStack.remove(at: i)
             }
         }
         // 如果没找到所需退回的页面,则尝试退到根页面
