@@ -16,6 +16,9 @@ let package = Package(
             name: "UIExtend",
             targets: ["UIExtend"]),
         .library(
+            name: "WebController",
+            targets: ["WebController"]),
+        .library(
             name: "ImageCache",
             targets: ["ImageCache"]),
         .library(

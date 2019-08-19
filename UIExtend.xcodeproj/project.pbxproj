@@ -1104,27 +1104,27 @@
       "OBJ_224" = {
          isa = "PBXGroup";
          children = (
-            "Extend::HTTP::Product",
-            "UIExtend::Toast::Product",
-            "UIExtend::DynamicLayout::Product",
-            "UIExtend::Refresh::Product",
-            "Extend::CoreAnimations::Product",
-            "UIExtend::ImageCache::Product",
-            "UIExtend::WebController::Product",
-            "UIExtend::UIExtend::Product",
-            "UIExtend::BorderCorner::Product",
+            "Extend::JSON::Product",
+            "UIExtend::EndEdit::Product",
             "UIExtend::SceneManager::Product",
             "Extend::Protocolar::Product",
+            "Extend::HTTP::Product",
+            "UIExtend::Toast::Product",
             "Extend::Adapter::Product",
-            "Extend::Operator::Product",
+            "UIExtend::WebController::Product",
             "UIExtend::GradientColor::Product",
-            "UIExtend::OperatorLayout::Product",
-            "UIExtend::EndEdit::Product",
-            "Extend::JSON::Product",
+            "Extend::MD5::Product",
+            "UIExtend::ImageCache::Product",
+            "Extend::CoreAnimations::Product",
             "UIExtend::ImagePreview::Product",
+            "UIExtend::OperatorLayout::Product",
+            "Extend::Operator::Product",
             "UIExtend::UIExtendTests::Product",
             "Extend::Extend::Product",
-            "Extend::MD5::Product"
+            "UIExtend::BorderCorner::Product",
+            "UIExtend::DynamicLayout::Product",
+            "UIExtend::Refresh::Product",
+            "UIExtend::UIExtend::Product"
          );
          name = "Products";
          path = "";
