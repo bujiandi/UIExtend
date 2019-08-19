@@ -71,6 +71,13 @@ let package = Package(
                 .linkedFramework("UIKit"),
             ]),
         .target(
+            name: "WebController",
+            dependencies: ["OperatorLayout","CoreAnimations"],
+            linkerSettings: [
+                .linkedFramework("UIKit"),
+                .linkedFramework("WebKit"),
+            ]),
+        .target(
             name: "Toast",
             dependencies: ["OperatorLayout","CoreAnimations"],
             linkerSettings: [
